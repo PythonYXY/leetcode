@@ -882,3 +882,1221 @@ class Solution {
 }
 ```
 
+# 20.表示数值的字符串
+```
+请实现一个函数用来判断字符串是否表示数值（包括整数和小数）。例如，字符串"+100"、"5e2"、"-123"、"3.1416"、"0123"及"-1E-16"都表示数值，但"12e"、"1a3.14"、"1.2.3"、"+-5"及"12e+5.4"都不是。
+
+ 
+
+注意：本题与主站 65 题相同：https://leetcode-cn.com/problems/valid-number/
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/biao-shi-shu-zhi-de-zi-fu-chuan-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 代码
+```java
+class Solution {
+    private int index = 0;
+    public boolean isNumber(String s) {
+        char[] sArr = s.toCharArray();
+        while(index < sArr.length && sArr[index] == ' ')
+            index++;
+        boolean res = scanNum(sArr);
+        if(index == sArr.length){
+            return res;
+        }
+        if(sArr[index] == '.'){
+            index++;
+            res = scanUnsignedNum(sArr) || res;
+            //wdnmd短路执行！！！！！！！！！！！！！！！！！！
+        }
+        if(index == sArr.length){
+            return res;
+        }
+        if(sArr[index] == 'e' || sArr[index] == 'E'){
+            index++;
+            res = res && scanNum(sArr);
+        }
+        while(index < sArr.length && sArr[index] == ' ')
+            index++;
+        return res && index == sArr.length;
+    }
+    private boolean scanUnsignedNum(char[] s){
+        if(index >= s.length){
+            return false;
+        }
+        int before = index;
+        while(index < s.length && s[index] >= '0' && s[index] <= '9'){
+            index++;
+        }
+        return index > before;
+    }
+    private boolean scanNum(char[] s){
+        if(index >= s.length){
+            return false;
+        }
+        if(s[index] == '+' || s[index] == '-')
+            index++;
+        return scanUnsignedNum(s);
+    }
+}
+```
+
+# 22. 链表中倒数第k个节点
+```
+输入一个链表，输出该链表中倒数第k个节点。为了符合大多数人的习惯，本题从1开始计数，即链表的尾节点是倒数第1个节点。例如，一个链表有6个节点，从头节点开始，它们的值依次是1、2、3、4、5、6。这个链表的倒数第3个节点是值为4的节点。
+
+ 
+
+示例：
+
+给定一个链表: 1->2->3->4->5, 和 k = 2.
+
+返回链表 4->5.
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/lian-biao-zhong-dao-shu-di-kge-jie-dian-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 注意
+这道题的考点在于代码的鲁棒性，需要考虑到head为null以及链表长度小于k的情况（如果k是无符号整数还需要考虑k等于0的情况）
+
+## 代码
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public ListNode getKthFromEnd(ListNode head, int k) {
+        if (head == null) return null;
+        ListNode node1 = head;
+        ListNode node2 = node1;
+        while (k-- > 1) {
+            if (node2.next == null) return null;
+            node2 = node2.next;
+        }
+
+        while (node2.next != null) {
+            node2 = node2.next;
+            node1 = node1.next;
+        }
+
+        return node1;
+    }
+}
+```
+
+# 24.反转链表
+```
+定义一个函数，输入一个链表的头节点，反转该链表并输出反转后链表的头节点。
+
+ 
+
+示例:
+
+输入: 1->2->3->4->5->NULL
+输出: 5->4->3->2->1->NULL
+ 
+
+限制：
+
+0 <= 节点个数 <= 5000
+
+ 
+
+注意：本题与主站 206 题相同：https://leetcode-cn.com/problems/reverse-linked-list/
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/fan-zhuan-lian-biao-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 代码（递归）
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        if (head == null || head.next == null) return head;
+        ListNode temp = reverseList(head.next);
+        head.next.next = head;
+        head.next = null;
+        return temp;
+    }
+}
+```
+
+## 代码（迭代）
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        ListNode cur = head, pre = null, next = null;
+
+        while (cur != null) {
+            next = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+        }
+
+        return pre;
+    }
+}
+```
+
+# 26. 树的子结构
+```
+输入两棵二叉树A和B，判断B是不是A的子结构。(约定空树不是任意一个树的子结构)
+
+B是A的子结构， 即 A中有出现和B相同的结构和节点值。
+
+例如:
+给定的树 A:
+
+     3
+    / \
+   4   5
+  / \
+ 1   2
+给定的树 B：
+
+   4 
+  /
+ 1
+返回 true，因为 B 与 A 的一个子树拥有相同的结构和节点值。
+
+示例 1：
+
+输入：A = [1,2,3], B = [3,1]
+输出：false
+示例 2：
+
+输入：A = [3,4,5,1,2], B = [4,1]
+输出：true
+限制：
+
+0 <= 节点个数 <= 10000
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/shu-de-zi-jie-gou-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 代码
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public boolean isSubStructure(TreeNode A, TreeNode B) {
+        if (A == null || B == null) return false;
+        return helper(A, B) || isSubStructure(A.left, B) || isSubStructure(A.right, B);
+    }
+
+    private boolean helper(TreeNode A, TreeNode B) {
+        if (B == null) return true;
+        if (A == null) return false;
+
+        if (A.val != B.val) return false;
+
+        return helper(A.left, B.left) && helper(A.right, B.right);
+    }
+}
+```
+
+# 28. 对称的二叉树
+```
+请实现一个函数，用来判断一棵二叉树是不是对称的。如果一棵二叉树和它的镜像一样，那么它是对称的。
+
+例如，二叉树 [1,2,2,3,4,4,3] 是对称的。
+
+    1
+   / \
+  2   2
+ / \ / \
+3  4 4  3
+但是下面这个 [1,2,2,null,3,null,3] 则不是镜像对称的:
+
+    1
+   / \
+  2   2
+   \   \
+   3    3
+
+ 
+
+示例 1：
+
+输入：root = [1,2,2,3,4,4,3]
+输出：true
+示例 2：
+
+输入：root = [1,2,2,null,3,null,3]
+输出：false
+ 
+
+限制：
+
+0 <= 节点个数 <= 1000
+
+注意：本题与主站 101 题相同：https://leetcode-cn.com/problems/symmetric-tree/
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/dui-cheng-de-er-cha-shu-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 代码
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public boolean isSymmetric(TreeNode root) {
+        return isSymmetric(root, root);
+    }
+
+    private boolean isSymmetric(TreeNode node1, TreeNode node2) {
+        if (node1 == null && node2 == null) return true;
+        if (node1 == null || node2 == null) return false;
+        if (node1.val != node2.val) return false;
+
+        return isSymmetric(node1.left, node2.right) && isSymmetric(node1.right, node2.left);
+    }
+}
+```
+
+# 29. 顺时针打印矩阵
+```
+输入一个矩阵，按照从外向里以顺时针的顺序依次打印出每一个数字。
+
+ 
+
+示例 1：
+
+输入：matrix = [[1,2,3],[4,5,6],[7,8,9]]
+输出：[1,2,3,6,9,8,7,4,5]
+示例 2：
+
+输入：matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
+输出：[1,2,3,4,8,12,11,10,9,5,6,7]
+ 
+
+限制：
+
+0 <= matrix.length <= 100
+0 <= matrix[i].length <= 100
+注意：本题与主站 54 题相同：https://leetcode-cn.com/problems/spiral-matrix/
+
+通过次数1,836提交次数4,266
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/shun-shi-zhen-da-yin-ju-zhen-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 代码
+```java
+class Solution {
+    public int[] spiralOrder(int[][] matrix) {
+         if(matrix==null||matrix.length==0||matrix[0].length==0){
+             return new int[0];
+         }
+         int[] answer=new int[matrix.length * matrix[0].length];
+         int rl=0,rh=matrix.length-1;
+         int cl=0,ch=matrix[0].length-1;
+         int cur=0;
+         while(rl<=rh&&cl<=ch){
+             for(int j=cl;j<=ch;j++){
+                 answer[cur++]=matrix[rl][j];
+             }
+             for(int i=rl+1;i<=rh;i++){
+                 answer[cur++]=matrix[i][ch];
+             }
+             if(rl<rh&&cl<ch){
+                for(int j=ch-1;j>=cl;j--){
+                     answer[cur++]=matrix[rh][j];
+                 }
+                 for(int i=rh-1;i>=rl+1;i--){
+                     answer[cur++]=matrix[i][cl];
+                 } 
+             rl++;
+             cl++;
+             rh--;
+             ch--;
+         }
+         return answer;
+    }
+}
+
+```
+
+# 30. 包含min函数的栈
+```
+定义栈的数据结构，请在该类型中实现一个能够得到栈的最小元素的 min 函数在该栈中，调用 min、push 及 pop 的时间复杂度都是 O(1)。
+
+ 
+
+示例:
+
+MinStack minStack = new MinStack();
+minStack.push(-2);
+minStack.push(0);
+minStack.push(-3);
+minStack.min();   --> 返回 -3.
+minStack.pop();
+minStack.top();      --> 返回 0.
+minStack.min();   --> 返回 -2.
+ 
+
+提示：
+
+各函数的调用总次数不超过 20000 次
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/bao-han-minhan-shu-de-zhan-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 代码
+```java
+class MinStack {
+    Stack<Integer> st1, st2;
+    /** initialize your data structure here. */
+    public MinStack() {
+        st1 = new Stack<>();
+        st2 = new Stack<>();
+    }
+    
+    public void push(int x) {
+        st1.push(x);
+        if (st2.empty() || x < st2.peek()) st2.push(x);
+        else st2.push(st2.peek());
+    }
+    
+    public void pop() {
+        st2.pop();
+        st1.pop();
+    }
+    
+    public int top() {
+        return st1.peek();
+    }
+    
+    public int min() {
+        return st2.peek();
+    }
+}
+
+/**
+ * Your MinStack object will be instantiated and called as such:
+ * MinStack obj = new MinStack();
+ * obj.push(x);
+ * obj.pop();
+ * int param_3 = obj.top();
+ * int param_4 = obj.min();
+ */
+```
+
+ # 31. 栈的压入、弹出序列
+ 
+ ```
+输入两个整数序列，第一个序列表示栈的压入顺序，请判断第二个序列是否为该栈的弹出顺序。假设压入栈的所有数字均不相等。例如，序列 {1,2,3,4,5} 是某栈的压栈序列，序列 {4,5,3,2,1} 是该压栈序列对应的一个弹出序列，但 {4,3,5,1,2} 就不可能是该压栈序列的弹出序列。
+
+ 
+
+示例 1：
+
+输入：pushed = [1,2,3,4,5], popped = [4,5,3,2,1]
+输出：true
+解释：我们可以按以下顺序执行：
+push(1), push(2), push(3), push(4), pop() -> 4,
+push(5), pop() -> 5, pop() -> 3, pop() -> 2, pop() -> 1
+示例 2：
+
+输入：pushed = [1,2,3,4,5], popped = [4,3,5,1,2]
+输出：false
+解释：1 不能在 2 之前弹出。
+ 
+
+提示：
+
+0 <= pushed.length == popped.length <= 1000
+0 <= pushed[i], popped[i] < 1000
+pushed 是 popped 的排列。
+注意：本题与主站 946 题相同：https://leetcode-cn.com/problems/validate-stack-sequences/
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/zhan-de-ya-ru-dan-chu-xu-lie-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+ 
+
+## 代码
+```java
+class Solution {
+    public boolean validateStackSequences(int[] pushed, int[] popped) {
+        if (pushed.length != popped.length) return false;
+
+        Stack<Integer> st = new Stack<>();
+        int i = 0, j = 0;
+
+        while (i < pushed.length && j < popped.length) {
+            if (st.empty() || st.peek() != popped[j]) st.push(pushed[i++]);
+            else {
+                st.pop();
+                j++;
+            }
+        }
+
+        while (j < i) {
+            if (st.peek() == popped[j]) {
+                st.pop();
+                j++;
+            } else {
+                break;
+            }
+        }
+
+        return i == j;
+    }
+}
+```
+
+# 32 - II. 从上到下打印二叉树 II
+```
+从上到下按层打印二叉树，同一层的节点按从左到右的顺序打印，每一层打印到一行。
+
+ 
+
+例如:
+给定二叉树: [3,9,20,null,null,15,7],
+
+    3
+   / \
+  9  20
+    /  \
+   15   7
+返回其层次遍历结果：
+
+[
+  [3],
+  [9,20],
+  [15,7]
+]
+ 
+
+提示：
+
+节点总数 <= 1000
+注意：本题与主站 102 题相同：https://leetcode-cn.com/problems/binary-tree-level-order-traversal/
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/cong-shang-dao-xia-da-yin-er-cha-shu-ii-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 代码
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        if (root == null) return new ArrayList<>();
+        List<List<Integer>> ret = new ArrayList<>();
+        Queue<TreeNode> que = new LinkedList<>();
+
+        que.offer(root);
+        int nextLevel = 0, curLevel = 1;
+
+        while (!que.isEmpty()) {
+            List<Integer> list = new ArrayList<>();
+            while (curLevel-- > 0) {
+                TreeNode node = que.poll();
+                list.add(node.val);
+                if (node.left != null) {
+                    que.offer(node.left);
+                    nextLevel++;
+                }
+                if (node.right != null) {
+                    que.offer(node.right);
+                    nextLevel++;
+                }
+            }
+            ret.add(list);
+
+            curLevel = nextLevel;
+            nextLevel = 0;
+        }
+
+        return ret;
+    }
+}
+```
+
+# 32 - III. 从上到下打印二叉树 III
+```
+请实现一个函数按照之字形顺序打印二叉树，即第一行按照从左到右的顺序打印，第二层按照从右到左的顺序打印，第三行再按照从左到右的顺序打印，其他行以此类推。
+
+ 
+
+例如:
+给定二叉树: [3,9,20,null,null,15,7],
+
+    3
+   / \
+  9  20
+    /  \
+   15   7
+返回其层次遍历结果：
+
+[
+  [3],
+  [20,9],
+  [15,7]
+]
+ 
+
+提示：
+
+节点总数 <= 1000
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/cong-shang-dao-xia-da-yin-er-cha-shu-iii-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+
+## 代码
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        if (root == null) return new ArrayList<>();
+        List<List<Integer>> ret = new ArrayList<>();
+
+        Stack<TreeNode> st1 = new Stack<>();
+        Stack<TreeNode> st2 = new Stack<>();
+
+        st1.push(root);
+
+        while (!st1.empty() || !st2.empty()) {
+            List<Integer> list = new ArrayList<>();
+            if (!st1.empty()) {
+                while (!st1.empty()) {
+                    TreeNode node = st1.pop();
+                    list.add(node.val);
+                    if (node.left != null) st2.push(node.left);
+                    if (node.right != null) st2.push(node.right);
+                }
+            } else {
+                while (!st2.empty()) {
+                    TreeNode node = st2.pop();
+                    list.add(node.val);
+                    if (node.right != null) st1.push(node.right);
+                    if (node.left != null) st1.push(node.left);
+                }
+            }
+            ret.add(list);
+        }
+        return ret;
+    }
+}
+```
+
+# 33. 二叉搜索树的后序遍历序列
+```
+输入一个整数数组，判断该数组是不是某二叉搜索树的后序遍历结果。如果是则返回 true，否则返回 false。假设输入的数组的任意两个数字都互不相同。
+
+ 
+
+参考以下这颗二叉搜索树：
+
+     5
+    / \
+   2   6
+  / \
+ 1   3
+示例 1：
+
+输入: [1,6,3,2,5]
+输出: false
+示例 2：
+
+输入: [1,3,2,6,5]
+输出: true
+ 
+
+提示：
+
+数组长度 <= 1000
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/er-cha-sou-suo-shu-de-hou-xu-bian-li-xu-lie-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 代码
+
+```java
+class Solution {
+    public boolean verifyPostorder(int[] postorder) {
+        return helper(postorder, 0, postorder.length - 1);
+    }
+
+    public boolean helper(int[] postorder, int start, int end) {
+        if (end <= start) return true;
+
+        int pivotIndex = -1;
+        for (int i = start; i < end; i++) {
+            if (pivotIndex == -1 && postorder[i] > postorder[end]) pivotIndex = i;
+            if ((pivotIndex != -1) && (postorder[i] < postorder[end])) return false;
+        }
+
+        if (pivotIndex == -1) return helper(postorder, start, end - 1);
+        else return helper(postorder, start, pivotIndex - 1) && helper(postorder, pivotIndex, end - 1);
+    }
+}
+```
+
+# 35. 复杂链表的复制
+```
+请实现 copyRandomList 函数，复制一个复杂链表。在复杂链表中，每个节点除了有一个 next 指针指向下一个节点，还有一个 random 指针指向链表中的任意节点或者 null。
+
+ 
+
+示例 1：
+
+
+
+输入：head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
+输出：[[7,null],[13,0],[11,4],[10,2],[1,0]]
+示例 2：
+
+
+
+输入：head = [[1,1],[2,1]]
+输出：[[1,1],[2,1]]
+示例 3：
+
+
+
+输入：head = [[3,null],[3,0],[3,null]]
+输出：[[3,null],[3,0],[3,null]]
+示例 4：
+
+输入：head = []
+输出：[]
+解释：给定的链表为空（空指针），因此返回 null。
+ 
+
+提示：
+
+-10000 <= Node.val <= 10000
+Node.random 为空（null）或指向链表中的节点。
+节点数目不超过 1000 。
+ 
+
+注意：本题与主站 138 题相同：https://leetcode-cn.com/problems/copy-list-with-random-pointer/
+
+ 
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/fu-za-lian-biao-de-fu-zhi-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 代码
+```java
+/*
+// Definition for a Node.
+class Node {
+    int val;
+    Node next;
+    Node random;
+
+    public Node(int val) {
+        this.val = val;
+        this.next = null;
+        this.random = null;
+    }
+}
+*/
+class Solution {
+    public Node copyRandomList(Node head) {
+        Node cur = head;
+        while (cur != null) {
+            Node temp = new Node(cur.val);
+            temp.next = cur.next;
+            cur.next = temp;
+            cur = cur.next.next;
+        }
+
+        cur = head;
+        while (cur != null) {
+            if (cur.random != null) cur.next.random = cur.random.next;
+            cur = cur.next.next;
+        }
+
+        cur = head;
+        Node dummy = new Node(-1);
+        Node dummyCur = dummy;
+        while (cur != null) {
+            dummyCur.next = cur.next;
+            dummyCur = dummyCur.next;
+            cur.next = cur.next.next;
+            cur = cur.next;
+        }
+
+        return dummy.next;
+    }
+}
+```
+
+# 36. 二叉搜索树与双向链表
+
+```
+输入一棵二叉搜索树，将该二叉搜索树转换成一个排序的循环双向链表。要求不能创建任何新的节点，只能调整树中节点指针的指向。
+
+ 
+
+为了让您更好地理解问题，以下面的二叉搜索树为例：
+
+ 
+
+
+
+ 
+
+我们希望将这个二叉搜索树转化为双向循环链表。链表中的每个节点都有一个前驱和后继指针。对于双向循环链表，第一个节点的前驱是最后一个节点，最后一个节点的后继是第一个节点。
+
+下图展示了上面的二叉搜索树转化成的链表。“head” 表示指向链表中有最小元素的节点。
+
+ 
+
+
+
+ 
+
+特别地，我们希望可以就地完成转换操作。当转化完成以后，树中节点的左指针需要指向前驱，树中节点的右指针需要指向后继。还需要返回链表中的第一个节点的指针。
+
+ 
+
+注意：本题与主站 426 题相同：https://leetcode-cn.com/problems/convert-binary-search-tree-to-sorted-doubly-linked-list/
+
+注意：此题对比原题有改动。
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/er-cha-sou-suo-shu-yu-shuang-xiang-lian-biao-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 代码
+```java
+/*
+// Definition for a Node.
+class Node {
+    public int val;
+    public Node left;
+    public Node right;
+
+    public Node() {}
+
+    public Node(int _val) {
+        val = _val;
+    }
+
+    public Node(int _val,Node _left,Node _right) {
+        val = _val;
+        left = _left;
+        right = _right;
+    }
+};
+*/
+class Solution {
+    public Node treeToDoublyList(Node root) {
+        if (root == null) return null;
+
+        Node pre, cur = root, curPre = null;;
+        Node first = null, last = null;
+
+        while (cur != null) {
+            if (cur.left == null) {
+                if (first == null) first = cur;
+                cur.left = curPre;
+                if (curPre != null) curPre.right = cur;
+                curPre = cur;
+                last = cur;
+                cur = cur.right;
+            } else {
+                pre = cur.left;
+
+                while (pre.right != null && pre.right != cur) pre = pre.right;
+
+                if (pre.right == null) {
+                    pre.right = cur;
+                    cur = cur.left;
+                } else {
+                    if (curPre != null) curPre.right = cur;
+                    cur.left = curPre;
+                    curPre = cur;
+                    last = cur;
+                    cur = cur.right;
+                }
+            }
+        }
+
+        first.left = last;
+        last.right = first;
+        return first;
+    }
+}
+```
+
+# 39. 数组中出现次数超过一半的数字
+```
+数组中有一个数字出现的次数超过数组长度的一半，请找出这个数字。
+
+ 
+
+你可以假设数组是非空的，并且给定的数组总是存在多数元素。
+
+ 
+
+示例 1:
+
+输入: [1, 2, 3, 2, 2, 2, 5, 4, 2]
+输出: 2
+ 
+
+限制：
+
+1 <= 数组长度 <= 50000
+
+ 
+
+注意：本题与主站 169 题相同：https://leetcode-cn.com/problems/majority-element/
+
+ 
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/shu-zu-zhong-chu-xian-ci-shu-chao-guo-yi-ban-de-shu-zi-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 代码1
+```java
+class Solution {
+    public int majorityElement(int[] nums) {
+        return majorityElement(nums, 0, nums.length - 1);
+    }
+
+    public int majorityElement(int[] nums, int start, int end) {
+        if (end == start) return nums[start];
+
+        int pivotIndex = start + new Random().nextInt(end - start + 1);
+        swap(nums, pivotIndex, end);
+
+        int parIndex = start;
+        for (int i = start; i < end; i++) {
+            if (nums[i] < nums[end]) swap(nums, i, parIndex++);
+        }
+
+        swap(nums, parIndex, end);
+        int mid = (nums.length - 1) >>> 1;
+        if (parIndex == mid) return nums[parIndex];
+        else if (parIndex < mid) return majorityElement(nums, parIndex + 1, end);
+        else return majorityElement(nums, start, parIndex - 1);
+    }
+
+    private void swap(int[] nums, int i, int j) {
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+}
+```
+
+## 代码2
+```java
+class Solution {
+    public int majorityElement(int[] nums) {
+        int count = 0, lastNum = -1;
+
+        for (int i = 0; i < nums.length; i++) {
+            if (count == 0) {
+                lastNum = nums[i];
+                count++;
+            } else if (nums[i] == lastNum) {
+                count++;
+            } else {
+                count--;
+            }
+        }
+
+        return lastNum;
+    }
+}
+```
+
+# 40. 最小的k个数
+```
+输入整数数组 arr ，找出其中最小的 k 个数。例如，输入4、5、1、6、2、7、3、8这8个数字，则最小的4个数字是1、2、3、4。
+
+ 
+
+示例 1：
+
+输入：arr = [3,2,1], k = 2
+输出：[1,2] 或者 [2,1]
+示例 2：
+
+输入：arr = [0,1,2,1], k = 1
+输出：[0]
+ 
+
+限制：
+
+0 <= k <= arr.length <= 10000
+0 <= arr[i] <= 10000
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+
+```
+
+## 代码 
+```java
+class Solution {
+    public int[] getLeastNumbers(int[] arr, int k) {
+        if (k == 0) return new int[0];
+        getLeastNumbers(arr, 0, arr.length - 1, k - 1);
+        int[] ret = new int[k];
+        for (int i = 0; i < k; i++) {
+            ret[i] = arr[i];
+        }
+
+        return ret;
+    }
+
+    public void getLeastNumbers(int[] arr, int start, int end, int k) {
+
+        if (start == end) return;
+
+        swap(arr, start + new Random().nextInt(end - start + 1), end);
+        int parIndex = start;
+        for (int i = start; i < end; i++) {
+            if (arr[i] < arr[end]) swap(arr, i, parIndex++);
+        }
+
+        swap(arr, parIndex, end);
+
+        if (parIndex == k) return;
+        if (parIndex < k) getLeastNumbers(arr, parIndex + 1, end, k);
+        else getLeastNumbers(arr, start, parIndex - 1, k);
+    }
+
+    public void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+```
+
+# 43. 1～n整数中1出现的次数
+```
+输入一个整数 n ，求1～n这n个整数的十进制表示中1出现的次数。
+
+例如，输入12，1～12这些整数中包含1 的数字有1、10、11和12，1一共出现了5次。
+
+ 
+
+示例 1：
+
+输入：n = 12
+输出：5
+示例 2：
+
+输入：n = 13
+输出：6
+ 
+
+限制：
+
+1 <= n < 2^31
+注意：本题与主站 233 题相同：https://leetcode-cn.com/problems/number-of-digit-one/
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/1nzheng-shu-zhong-1chu-xian-de-ci-shu-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+
+## 代码
+```java
+class Solution {
+    // 以百位上1出现的次数为例，分三种情况讨论（高位为百位左边的数字， 低位为百位右边的数字）
+    // 1. 若百位上为1，百位上出现1的数字共有 高位 * 100 + 低位 + 1 个
+    // 2。若百位上为0，百位上出现1的数字共有 高位 * 100 个
+    // 3. 若百位上大于1, 百位上出现1的数字共有 (高位 + 1) * 100 个
+
+    public int countDigitOne(int n) {
+        long i = 1;
+        int sum = 0;
+
+        while (n / i != 0) {
+            long high = n / i / 10;
+            long low = n - (n / i) * i;
+            long cur = (n / i) % 10;
+
+            if (cur == 0) sum += high * i;
+            else if (cur == 1) sum += high * i + low + 1;
+            else sum += (high + 1) * i;
+
+            i *= 10;
+        }
+
+        return sum;
+    }
+}
+```
+
+# 41. 数据流中的中位数
+```
+如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。
+
+例如，
+
+[2,3,4] 的中位数是 3
+
+[2,3] 的中位数是 (2 + 3) / 2 = 2.5
+
+设计一个支持以下两种操作的数据结构：
+
+void addNum(int num) - 从数据流中添加一个整数到数据结构中。
+double findMedian() - 返回目前所有元素的中位数。
+示例 1：
+
+输入：
+["MedianFinder","addNum","addNum","findMedian","addNum","findMedian"]
+[[],[1],[2],[],[3],[]]
+输出：[null,null,null,1.50000,null,2.00000]
+示例 2：
+
+输入：
+["MedianFinder","addNum","findMedian","addNum","findMedian"]
+[[],[2],[],[3],[]]
+输出：[null,null,2.00000,null,2.50000]
+ 
+
+限制：
+
+最多会对 addNum、findMedia进行 50000 次调用。
+注意：本题与主站 295 题相同：https://leetcode-cn.com/problems/find-median-from-data-stream/
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/shu-ju-liu-zhong-de-zhong-wei-shu-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 代码
+```java
+class MedianFinder {
+    PriorityQueue<Integer> maxHeap, minHeap;
+    int curIndex;
+
+    /** initialize your data structure here. */
+    public MedianFinder() {
+        minHeap = new PriorityQueue<>();
+        maxHeap = new PriorityQueue<>((i1, i2) -> i2 - i1);
+        curIndex = 0;
+    }
+    
+    public void addNum(int num) {
+        if ((curIndex & 1) == 0) {
+            if (maxHeap.isEmpty() || num >= maxHeap.peek()) {
+                minHeap.offer(num);
+            } else {
+                maxHeap.offer(num);
+                minHeap.offer(maxHeap.poll());
+            }
+        } else {
+            if (minHeap.isEmpty() || num <= minHeap.peek()) {
+                maxHeap.offer(num);
+            } else {
+                minHeap.offer(num);
+                maxHeap.offer(minHeap.poll());
+            }
+        }
+
+        curIndex++;
+    }
+    
+    public double findMedian() {
+        if ((curIndex & 1) == 0) {
+            return (minHeap.peek() + maxHeap.peek()) / 2.0;
+        } else {
+            return (double)minHeap.peek();
+        }
+    }
+}
+
+/**
+ * Your MedianFinder object will be instantiated and called as such:
+ * MedianFinder obj = new MedianFinder();
+ * obj.addNum(num);
+ * double param_2 = obj.findMedian();
+ */
+```
+
