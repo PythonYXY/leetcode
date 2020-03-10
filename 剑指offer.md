@@ -2100,3 +2100,330 @@ class MedianFinder {
  */
 ```
 
+# 43. 1～n整数中1出现的次数
+```
+输入一个整数 n ，求1～n这n个整数的十进制表示中1出现的次数。
+
+例如，输入12，1～12这些整数中包含1 的数字有1、10、11和12，1一共出现了5次。
+
+ 
+
+示例 1：
+
+输入：n = 12
+输出：5
+示例 2：
+
+输入：n = 13
+输出：6
+ 
+
+限制：
+
+1 <= n < 2^31
+注意：本题与主站 233 题相同：https://leetcode-cn.com/problems/number-of-digit-one/
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/1nzheng-shu-zhong-1chu-xian-de-ci-shu-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 代码
+```java
+class Solution {
+    // 以百位上1出现的次数为例，分三种情况讨论（高位为百位左边的数字， 低位为百位右边的数字）
+    // 1. 若百位上为1，百位上出现1的数字共有 高位 * 100 + 低位 + 1 个
+    // 2。若百位上为0，百位上出现1的数字共有 高位 * 100 个
+    // 3. 若百位上大于1, 百位上出现1的数字共有 (高位 + 1) * 100 个
+
+    public int countDigitOne(int n) {
+        long i = 1;
+        int sum = 0;
+
+        while (n / i != 0) {
+            long high = n / i / 10;
+            long low = n - (n / i) * i;
+            long cur = (n / i) % 10;
+
+            if (cur == 0) sum += high * i;
+            else if (cur == 1) sum += high * i + low + 1;
+            else sum += (high + 1) * i;
+
+            i *= 10;
+        }
+
+        return sum;
+    }
+}
+```
+
+# 44. 数字序列中某一位的数字
+```
+数字以0123456789101112131415…的格式序列化到一个字符序列中。在这个序列中，第5位（从下标0开始计数）是5，第13位是1，第19位是4，等等。
+
+请写一个函数，求任意第n位对应的数字。
+
+ 
+
+示例 1：
+
+输入：n = 3
+输出：3
+示例 2：
+
+输入：n = 11
+输出：0
+ 
+
+限制：
+
+0 <= n < 2^31
+注意：本题与主站 400 题相同：https://leetcode-cn.com/problems/nth-digit/
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/shu-zi-xu-lie-zhong-mou-yi-wei-de-shu-zi-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 代码
+```java
+class Solution {
+    public int findNthDigit(int n) {
+        if(n < 10) return n;
+        //计算当前范围有几位数字 如10-99 有90*power位 power = 2
+        int count = 0;
+        int power = 1;
+        while(true){
+            count = helper(power);
+            //n在count这个范围内
+            if(n < count) break;
+            n -= count;
+            power++;
+        }
+        //计算计数到的这个数字
+        //Math.pow(10,power-1) -- 起始数字 n/power -- 剩余补充数字
+        int resNum = (int)(Math.pow(10,power-1) + n/power);
+        return String.valueOf(resNum).charAt(n % power) - '0';
+    }
+    public int helper(int power){
+        if(power == 1) return 10;
+        return (int)(Math.pow(10,power-1) * 9 * power);
+    }
+}
+
+```
+
+# 45. 把数组排成最小的数
+```
+输入一个正整数数组，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。
+
+ 
+
+示例 1:
+
+输入: [10,2]
+输出: "102"
+示例 2:
+
+输入: [3,30,34,5,9]
+输出: "3033459"
+ 
+
+提示:
+
+0 < nums.length <= 100
+说明:
+
+输出结果可能非常大，所以你需要返回一个字符串而不是整数
+拼接起来的数字可能会有前导 0，最后结果不需要去掉前导 0
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/ba-shu-zu-pai-cheng-zui-xiao-de-shu-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+
+```
+
+## 代码
+```java
+class Solution {
+    public String minNumber(int[] nums) {
+        List<String> numArr = new ArrayList<>();
+
+        for (int i = 0; i < nums.length; i++) {
+            numArr.add(new Integer(nums[i]).toString());
+        }
+
+        Collections.sort(numArr, new StringComparator());
+
+        StringBuilder sb = new StringBuilder();
+        for (String str: numArr) sb.append(str);
+        return sb.toString();
+    }
+
+    class StringComparator implements Comparator<String> {
+        
+        public int compare(String s1, String s2) {
+            return (s1 + s2).compareTo(s2 + s1);
+        }
+    }
+}
+```
+
+# 46. 把数字翻译成字符串
+```
+给定一个数字，我们按照如下规则把它翻译为字符串：0 翻译成 “a” ，1 翻译成 “b”，……，11 翻译成 “l”，……，25 翻译成 “z”。一个数字可能有多个翻译。请编程实现一个函数，用来计算一个数字有多少种不同的翻译方法。
+
+ 
+
+示例 1:
+
+输入: 12258
+输出: 5
+解释: 12258有5种不同的翻译，分别是"bccfi", "bwfi", "bczi", "mcfi"和"mzi"
+ 
+
+提示：
+
+0 <= num < 2^31
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/ba-shu-zi-fan-yi-cheng-zi-fu-chuan-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 代码
+
+```java
+class Solution {
+    public int translateNum(int num) {
+        if (num == 0) return 1;
+        List<Integer> nums = new ArrayList<>();
+
+        while (num != 0) {
+            nums.add(num % 10);
+            num /= 10;
+        }
+        Collections.reverse(nums);
+
+        int[] dp = new int[nums.size() + 1];
+        dp[0] = 1;
+        dp[1] = 1;
+        for (int i = 1; i < nums.size(); i++) {
+            dp[i + 1] = dp[i];
+            if (nums.get(i - 1).equals(1) || (nums.get(i - 1).equals(2) && nums.get(i) <= 5)) {
+                dp[i + 1] += dp[i - 1];
+            }
+        }
+
+        return dp[nums.size()];
+    }
+}
+```
+
+
+# 48. 最长不含重复字符的子字符串
+```
+请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。
+
+ 
+
+示例 1:
+
+输入: "abcabcbb"
+输出: 3 
+解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
+示例 2:
+
+输入: "bbbbb"
+输出: 1
+解释: 因为无重复字符的最长子串是 "b"，所以其长度为 1。
+示例 3:
+
+输入: "pwwkew"
+输出: 3
+解释: 因为无重复字符的最长子串是 "wke"，所以其长度为 3。
+     请注意，你的答案必须是 子串 的长度，"pwke" 是一个子序列，不是子串。
+ 
+
+提示：
+
+s.length <= 40000
+注意：本题与主站 3 题相同：https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/zui-chang-bu-han-zhong-fu-zi-fu-de-zi-zi-fu-chuan-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 代码
+```java
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        if (s.length() == 0) return 0;
+
+        Map<Character, Integer> map = new HashMap<>();
+
+        int len = 1;
+        int left = 0, right = 0;
+        while (right < s.length()) {
+            map.put(s.charAt(right), map.getOrDefault(s.charAt(right), 0) + 1);
+            while (map.get(s.charAt(right)) > 1) {
+                map.put(s.charAt(left), map.get(s.charAt(left)) - 1);
+                left++;
+            }
+            len = Math.max(len, right - left + 1);
+            right++;
+        }
+
+        return len;
+
+    }
+}
+```
+
+
+# 49. 丑数
+```
+我们把只包含因子 2、3 和 5 的数称作丑数（Ugly Number）。求按从小到大的顺序的第 n 个丑数。
+
+ 
+
+示例:
+
+输入: n = 10
+输出: 12
+解释: 1, 2, 3, 4, 5, 6, 8, 9, 10, 12 是前 10 个丑数。
+说明:  
+
+1 是丑数。
+n 不超过1690。
+注意：本题与主站 264 题相同：https://leetcode-cn.com/problems/ugly-number-ii/
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/chou-shu-lcof
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+## 代码
+```java
+class Solution {
+    public int nthUglyNumber(int n) {
+        int[] nums = new int[n];
+        nums[0] = 1;
+
+        int index = 0, i = 0, j = 0, k = 0;
+
+        while (index < n - 1) {
+            int num = Math.min(nums[i] * 2, Math.min(nums[j] * 3, nums[k] * 5));
+
+            if (num == nums[i] * 2) i++;
+            if (num == nums[j] * 3) j++;
+            if (num == nums[k] * 5) k++;
+
+            if (num != nums[index]) nums[++index] = num;
+        }
+
+        return nums[n - 1];
+    }
+}
+```
