@@ -1,4 +1,4 @@
-.java
-.sh
-.class
+*.java
+*.sh
+*.class
 .DS_Store
